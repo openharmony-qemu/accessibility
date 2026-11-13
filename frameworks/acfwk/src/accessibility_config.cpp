@@ -226,6 +226,13 @@ Accessibility::RetError AccessibilityConfig::SetIgnoreRepeatClickTime(const IGNO
     return pImpl_->SetIgnoreRepeatClickTime(time);
 }
 
+Accessibility::RetError AccessibilityConfig::ControlBlinking(bool start, int32_t mode, int32_t scenario,
+    int32_t &result)
+{
+    CHECK_IMPL_PTR(Accessibility::RET_ERR_NULLPTR)
+    return pImpl_->ControlBlinking(start, mode, scenario, result);
+}
+
 Accessibility::RetError AccessibilityConfig::GetScreenMagnificationState(bool &state) const
 {
     CHECK_IMPL_PTR(Accessibility::RET_ERR_NULLPTR)

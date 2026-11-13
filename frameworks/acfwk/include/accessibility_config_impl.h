@@ -85,6 +85,7 @@ public:
     Accessibility::RetError SetClickResponseTime(const CLICK_RESPONSE_TIME time);
     Accessibility::RetError SetIgnoreRepeatClickState(const bool state);
     Accessibility::RetError SetIgnoreRepeatClickTime(const IGNORE_REPEAT_CLICK_TIME time);
+    Accessibility::RetError ControlBlinking(bool start, int32_t mode, int32_t scenario, int32_t &result);
 
     Accessibility::RetError GetScreenMagnificationState(bool &state);
     Accessibility::RetError GetShortKeyState(bool &state);

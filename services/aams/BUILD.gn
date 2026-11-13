@@ -84,6 +84,7 @@ ohos_shared_library("accessibleabilityms") {
   }
 
   sources = accessibleabilityms_files
+  sources += [ "src/accessibility_blink_controller.cpp" ]
   if (accessibility_feature_power_manager) {
     sources += [ "${services_path}/src/accessibility_power_manager.cpp" ]
   }
@@ -127,6 +128,9 @@ ohos_shared_library("accessibleabilityms") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwm",
+    "window_manager:libdm",
+    "graphic_2d:librender_service_client",
+    "graphic_2d:librender_service_base",
   ]
 
   if (accessibility_feature_power_manager) {

@@ -354,6 +354,8 @@ public:
      */
     Accessibility::RetError SetIgnoreRepeatClickTime(const IGNORE_REPEAT_CLICK_TIME time);
 
+    Accessibility::RetError ControlBlinking(bool start, int32_t mode, int32_t scenario, int32_t &result);
+
     /**
      * @brief Get the status of whether the magnification function is enabled
      * @param state(out) true:the magnification function is enabled; false:the magnification function is disabled

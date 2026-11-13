@@ -47,6 +47,7 @@ namespace OHOS {
 namespace Accessibility {
 class AccessibilityAccountData;
 class AccessibilitySettings;
+class AccessibilityBlinkController;
 class AccessibilityResourceBundleManager;
 
 enum CallBackID {
@@ -260,6 +261,7 @@ public:
     ErrCode GetIgnoreRepeatClickState(bool &state) override;
     ErrCode GetIgnoreRepeatClickTime(uint32_t &time) override;
     ErrCode GetFlashReminderSwitch(bool &state) override;
+    ErrCode ControlBlinking(bool start, int32_t mode, int32_t scenario, int32_t &result) override;
     ErrCode GetAllConfigs(AccessibilityConfigData& configData, CaptionPropertyParcel& caption) override;
     ErrCode GetSeniorModeState(bool &state) override;
     ErrCode GetSeniorModeStateForApp(bool &state) override; // asac
@@ -447,6 +449,9 @@ private:
     ffrt::mutex mutex_; // current used for register state observer
     std::vector<sptr<IAccessibleAbilityManagerConfigObserver>> defaultConfigCallbacks_;
     std::shared_ptr<AccessibilitySettings> accessibilitySettings_ = nullptr;
+    ffrt::mutex blinkMutex_;
+    bool blinkStopping_ = false;
+    std::shared_ptr<AccessibilityBlinkController> blinkController_;
     std::shared_ptr<AccessibilityShortKey> accessibilityShortKey_ = nullptr;
     std::vector<std::string> removedAutoStartAbilities_ {};
 

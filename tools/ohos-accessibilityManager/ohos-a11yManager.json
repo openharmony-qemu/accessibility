@@ -56,6 +56,91 @@
         }
       }
     },
+    "ability-enable": {
+      "description": "Enable an installed accessibility extension ability by bundle and ability name.",
+      "requirePermissions": ["ohos.permission.cli.WRITE_ACCESSIBILITY_CONFIG_VISION"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Accessibility extension in bundleName/abilityName form"
+          },
+          "capabilities": {
+            "type": "integer",
+            "description": "Accessibility capability bit mask from 1 to 31",
+            "default": 31
+          }
+        },
+        "required": ["name"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Enabled accessibility extension"
+              },
+              "capabilities": {
+                "type": "integer",
+                "description": "Enabled accessibility capabilities"
+              }
+            }
+          },
+          "errCode": {
+            "type": "string"
+          },
+          "errMsg": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ability-disable": {
+      "description": "Disable an accessibility extension ability by bundle and ability name.",
+      "requirePermissions": ["ohos.permission.cli.WRITE_ACCESSIBILITY_CONFIG_VISION"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Accessibility extension in bundleName/abilityName form"
+          }
+        },
+        "required": ["name"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Disabled accessibility extension"
+              }
+            }
+          },
+          "errCode": {
+            "type": "string"
+          },
+          "errMsg": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "ability-enable-screen-reader": {
       "description": "Enable screen reader function. Used to turn on screen reading service for visually impaired users. Not applicable when screen reader is already enabled.",
       "requirePermissions": ["ohos.permission.cli.WRITE_ACCESSIBILITY_CONFIG_VISION"],

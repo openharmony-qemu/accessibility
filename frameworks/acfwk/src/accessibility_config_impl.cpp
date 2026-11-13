@@ -1400,6 +1400,16 @@ Accessibility::RetError AccessibilityConfig::Impl::SetIgnoreRepeatClickTime(cons
     return ret;
 }
 
+Accessibility::RetError AccessibilityConfig::Impl::ControlBlinking(bool start, int32_t mode, int32_t scenario,
+    int32_t &result)
+{
+    auto proxy = GetServiceProxy();
+    if (proxy == nullptr) {
+        return Accessibility::RET_ERR_SAMGR;
+    }
+    return static_cast<Accessibility::RetError>(proxy->ControlBlinking(start, mode, scenario, result));
+}
+
 Accessibility::RetError AccessibilityConfig::Impl::GetInvertColorState(bool &state)
 {
     sptr<Accessibility::IAccessibleAbilityManagerService> proxy = GetServiceProxy();

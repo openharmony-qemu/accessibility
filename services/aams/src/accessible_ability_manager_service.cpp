@@ -14,6 +14,7 @@
  */
 
 #include "accessible_ability_manager_service.h"
+#include "accessibility_blink_controller.h"
 #include "element_operator_callback_impl.h"
 #include "ability_manager_client.h"
 #include "want.h"
@@ -188,6 +189,9 @@ AccessibleAbilityManagerService::AccessibleAbilityManagerService()
 AccessibleAbilityManagerService::~AccessibleAbilityManagerService()
 {
     HILOG_INFO("AccessibleAbilityManagerService::~AccessibleAbilityManagerService");
+    if (blinkController_) {
+        blinkController_->Shutdown();
+    }
     a11yAccountsData_.Clear();
 }
 
@@ -309,11 +313,25 @@ void AccessibleAbilityManagerService::OnStart()
     AddSystemAbilityListener(MEMORY_MANAGER_SA_ID);
 
     accessibilitySettings_->RegisterSettingsHandler(handler_);
+    {
+        std::lock_guard<ffrt::mutex> guard(blinkMutex_);
+        blinkStopping_ = false;
+    }
 }
 
 void AccessibleAbilityManagerService::OnStop()
 {
     HILOG_COMM_INFO("stop AccessibleAbilityManagerService");
+    std::shared_ptr<AccessibilityBlinkController> blink;
+    {
+        std::lock_guard<ffrt::mutex> guard(blinkMutex_);
+        blinkStopping_ = true;
+        blink.swap(blinkController_);
+    }
+    // Drain the screen worker before tearing down its settings handler.
+    if (blink) {
+        blink->Shutdown();
+    }
     if (!handler_) {
         HILOG_ERROR("AccessibleAbilityManagerService::OnStop failed!");
         return;
@@ -1699,7 +1717,13 @@ void AccessibleAbilityManagerService::SwitchedUser(int32_t accountId)
         UpdateAccessibilityState();
         UpdateShortKeyRegister();
     }
-    currentAccountId_ = accountId;
+    {
+        std::lock_guard<ffrt::mutex> guard(blinkMutex_);
+        currentAccountId_ = accountId;
+        if (blinkController_) {
+            blinkController_->CancelForAccountChange();
+        }
+    }
     if (Singleton<ExtendManagerServiceProxy>::GetInstance().CheckExtProxyStatus()) {
         Singleton<ExtendManagerServiceProxy>::GetInstance().SetCurrentAccountId(accountId);
     }
@@ -2289,6 +2313,35 @@ ErrCode AccessibleAbilityManagerService::SetIgnoreRepeatClickTime(const uint32_t
         return RET_ERR_NO_PERMISSION;
     }
     return accessibilitySettings_->SetIgnoreRepeatClickTime(time);
+}
+
+ErrCode AccessibleAbilityManagerService::ControlBlinking(bool start, int32_t mode, int32_t scenario,
+    int32_t &result)
+{
+    PostDelayUnloadTask();
+    result = 0;
+    if (!IsSystemApp()) {
+        return RET_ERR_NOT_SYSTEM_APP;
+    }
+    if (!CheckPermission(OHOS_PERMISSION_WRITE_ACCESSIBILITY_CONFIG)) {
+        return RET_ERR_NO_PERMISSION;
+    }
+    const int32_t pid = IPCSkeleton::GetCallingPid();
+    const uint32_t token = IPCSkeleton::GetCallingTokenID();
+    std::shared_ptr<AccessibilityBlinkController> blink;
+    {
+        std::lock_guard<ffrt::mutex> guard(blinkMutex_);
+        if (blinkStopping_ || !accessibilitySettings_) {
+            return RET_ERR_FAILED;
+        }
+        if (!blinkController_) {
+            auto settings = accessibilitySettings_;
+            blinkController_ = std::make_shared<AccessibilityBlinkController>(
+                [settings](bool &enabled) { return settings->GetFlashReminderSwitch(enabled); });
+        }
+        blink = blinkController_;
+    }
+    return blink->Control(start, mode, scenario, pid, token, result);
 }
 
 ErrCode AccessibleAbilityManagerService::GetScreenMagnificationState(bool &state)

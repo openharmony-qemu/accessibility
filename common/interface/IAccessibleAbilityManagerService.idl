@@ -112,4 +112,5 @@ interface OHOS.Accessibility.IAccessibleAbilityManagerService {
     void GetSeniorModeStateForApp([in] String name, [in] int appIndex, [out] boolean state);
     void SetSeniorModeStateForApp([in] AccessibilityBundleSeniorModeInfoParcel[] infos);
     void DeRegisterSeniorModeStateObserver([in] IRemoteObject obj);
+    void ControlBlinking([in] boolean start, [in] int mode, [in] int scenario, [out] int blinkResult);
 }
